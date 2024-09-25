@@ -1,23 +1,37 @@
+package ucb.poo.entities;
+
 public class Curso {
     private int id;
-    private String nomeCurso;
-    private int duracao;
+    private String nome;
+    private int codigo_mec;
 
-    public Curso() {}
-
-    public Curso(int id, String nomeCurso, int duracao) {
+    public Curso(int id, String nome, int codigo_mec) {
         this.id = id;
-        this.nomeCurso = nomeCurso;
-        this.duracao = duracao;
+        this.nome = nome;
+        this.codigo_mec = codigo_mec;
     }
 
-    // Getters e Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getNomeCurso() { return nomeCurso; }
-    public void setNomeCurso(String nomeCurso) { this.nomeCurso = nomeCurso; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public int getDuracao() { return duracao; }
-    public void setDuracao(int duracao) { this.duracao = duracao; }
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public int getCodigo_mec() {
+        return codigo_mec;
+    }
+
+    public void setCodigo_mec(int codigo_mec) {
+        this.codigo_mec = codigo_mec;
+    }
 }
