@@ -1,6 +1,12 @@
 package ucb.poo.entities;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Aluno {
     private int matricula;
@@ -9,6 +15,8 @@ public class Aluno {
     private String email;
     private String telefone;
     private LocalDateTime data_nascimento;
+
+    public Aluno() {}
 
     public Aluno(int matricula, String cpf, String nome, String email, String telefone, LocalDateTime data_nascimento) {
         this.matricula = matricula;

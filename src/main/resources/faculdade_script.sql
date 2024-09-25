@@ -3,12 +3,12 @@ CREATE DATABASE universidade;
 USE universidade;
 
 CREATE TABLE alunos(
-    matricula INT NOT NULL PRIMARY KEY,
+    matricula INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
 	cpf VARCHAR(11) NOT NULL UNIQUE,
     nome VARCHAR(128) NOT NULL,
     email VARCHAR(100) NOT NULL,
     telefone VARCHAR(11) NOT NULL,
-    data_nascimento DATE NOT NULL
+    data_nascimento DATE
 );
 
 CREATE TABLE cursos(
