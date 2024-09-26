@@ -7,6 +7,8 @@ public class Turma {
     private int id_curso;
     private int matricula_aluno;
 
+    public Turma() {}
+
     public Turma(int codigo_turma, int sala, int id_disciplina, int id_curso, int matricula_aluno) {
         this.codigo_turma = codigo_turma;
         this.sala = sala;

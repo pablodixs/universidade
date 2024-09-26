@@ -2,6 +2,7 @@ package ucb.poo;
 
 import ucb.poo.database.DB;
 import ucb.poo.entities.Aluno;
+import ucb.poo.entities.Turma;
 
 import java.sql.*;
 import java.text.ParseException;
@@ -176,5 +177,39 @@ public class Main {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void cadastrarTurma() {
+        Connection conexao;
+
+        PreparedStatement statement;
+        Scanner sc = new Scanner(System.in);
+
+        try {
+            conexao = DB.conectar();
+            conexao.createStatement();
+
+            Turma turma = new Turma();
+
+            System.out.print("Insira o número da sala: ");
+            turma.setSala(sc.nextInt());
+
+            System.out.print("Insira o ID da Disciplina: ");
+            turma.setId_disciplina(sc.nextInt());
+
+            System.out.print("Insira o ID do Curso: ");
+            turma.setId_curso(sc.nextInt());
+
+            statement = conexao.prepareStatement(
+                    "INSERT INTO universidade.turmas(sala, id_disciplina, id_curso) VALUES (?, ?, ?)"
+            )
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void adicionarDisciplina() {
+
     }
 }

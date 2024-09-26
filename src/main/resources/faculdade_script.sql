@@ -9,6 +9,9 @@ CREATE TABLE alunos(
     email VARCHAR(100) NOT NULL,
     telefone VARCHAR(11) NOT NULL,
     data_nascimento DATE
+    codigo_turma INT NOT NULL,
+
+    FOREIGN KEY (codigo_turma) REFERENCES turmas(codigo)
 );
 
 CREATE TABLE cursos(
@@ -30,9 +33,7 @@ CREATE TABLE turmas(
     sala INT NOT NULL,
     id_disciplina INT,
     id_curso INT,
-    matricula_aluno INT,
 	
     FOREIGN KEY (id_disciplina) REFERENCES disciplinas(id),
     FOREIGN KEY (id_curso) REFERENCES cursos(id),
-    FOREIGN KEY (matricula_aluno) REFERENCES  alunos(matricula)
 );
