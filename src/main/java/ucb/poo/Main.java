@@ -15,40 +15,20 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Statement comando = null;
-        Connection conexao = null;
-        Scanner sc = new Scanner(System.in);
+        deletarAluno(1);
+    }
 
-        int opc = 0;
+    public static List<Aluno> listarAlunos() {
+        Connection conexao;
+        Statement comando;
+        ResultSet resultado;
 
-        System.out.println("Insira a matrícula: ");
-        int matricula = sc.nextInt();
+        List<Aluno> alunos = new ArrayList<>();
 
         try {
             conexao = DB.conectar();
             comando = conexao.createStatement();
 
-            Optional<Aluno> aluno = buscarAluno(matricula, comando);
-
-            if(aluno.isPresent()) {
-                System.out.println("Aluno encontrado");
-                System.out.println(aluno.get().getNome());
-                System.out.println(aluno.get().getMatricula());
-                System.out.println(aluno.get().getEmail());
-            } else {
-                System.out.println("Aluno nao encontrado");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static List<Aluno> listarAlunos(Statement comando) {
-        Connection conexao = null;
-        ResultSet resultado = null;
-        List<Aluno> alunos = new ArrayList<>();
-
-        try {
             resultado = comando.executeQuery("SELECT * FROM universidade.alunos");
 
             while (resultado.next()) {
@@ -69,11 +49,15 @@ public class Main {
         return alunos;
     }
 
-    public static void adicionarAluno(Connection conexao) {
-        PreparedStatement statement = null;
+    public static void adicionarAluno() {
+        Connection conexao;
+
+        PreparedStatement statement;
         Scanner sc = new Scanner(System.in);
 
         try {
+            conexao = DB.conectar();
+            conexao.createStatement();
 
             Aluno novoAluno = new Aluno();
 
@@ -93,6 +77,7 @@ public class Main {
             String dataString = sc.nextLine();
 
             SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
             try {
                 java.util.Date utilDate = formatter.parse(dataString);
 
@@ -115,9 +100,9 @@ public class Main {
             statement.setString(4, novoAluno.getTelefone());
 
             if (novoAluno.getData_nascimento() != null) {
-                statement.setDate(5, java.sql.Date.valueOf(novoAluno.getData_nascimento().toLocalDate()));
+                statement.setDate(5, Date.valueOf(novoAluno.getData_nascimento().toLocalDate()));
             } else {
-                statement.setNull(5, java.sql.Types.DATE);
+                statement.setNull(5, Types.DATE);
             }
 
             statement.executeUpdate();
@@ -126,13 +111,16 @@ public class Main {
         }
     }
 
-    public static Optional<Aluno> buscarAluno(int matricula, Statement comando) {
-        Connection conexao = null;
-        ResultSet resultado = null;
+    public static Optional<Aluno> buscarAluno(int matricula) {
+        Connection conexao;
+        ResultSet resultado;
+        Statement comando;
         Aluno aluno = null;
 
-
         try {
+            conexao = DB.conectar();
+            comando = conexao.createStatement();
+
             resultado = comando.executeQuery(
                     "SELECT matricula, " +
                             "nome, " +
@@ -151,11 +139,42 @@ public class Main {
                 aluno.setTelefone(resultado.getString("telefone"));
             }
 
+            if(aluno == null) {
+                System.out.println("Aluno não encontrado");
+                return Optional.empty();
+            }
+
+            System.out.println("Aluno encontrado");
+            System.out.println(aluno.getNome());
+            System.out.println(aluno.getMatricula());
+            System.out.println(aluno.getEmail());
+
             return Optional.of(aluno);
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DB.desconectar();
         }
 
         return Optional.empty();
+    }
+
+    public static void deletarAluno(int matricula) {
+        Connection conexao;
+        Statement comando;
+        PreparedStatement statement;
+
+        try {
+            conexao = DB.conectar();
+            comando = conexao.createStatement();
+
+            statement = conexao.prepareStatement("DELETE FROM universidade.alunos WHERE alunos.matricula = ?");
+
+            statement.setInt(1, matricula);
+
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
