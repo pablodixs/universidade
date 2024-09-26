@@ -16,16 +16,24 @@ public class Main {
     public static void main(String[] args) {
         Statement comando = null;
         Connection conexao = null;
+        Scanner sc = new Scanner(System.in);
+
+        int opc = 0;
+
+        while (opc != 3) {
+            System.out.println("        MENU        ");
+            System.out.println("1 - Cadastrar aluno");
+            System.out.println("2 - Listar alunos");
+            System.out.println("3 - Sair");
+            opc = sc.nextInt();
+        }
 
         try {
-            // Establish connection
             conexao = DB.conectar();
             comando = conexao.createStatement();
 
-            // Add a new student
-            adicionarAluno(conexao);
 
-            // List all students
+            adicionarAluno(conexao);
             List<Aluno> alunos = listarAlunos(comando);
 
             for (Aluno aluno : alunos) {
@@ -35,7 +43,6 @@ public class Main {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            // Close resources
             DB.fecharComando(comando);
             DB.desconectar();
         }
@@ -121,8 +128,6 @@ public class Main {
             statement.executeUpdate();
         } catch (SQLException erro) {
             erro.printStackTrace();
-        } finally {
-            DB.desconectar();
         }
     }
 }
