@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Main {
@@ -20,31 +21,25 @@ public class Main {
 
         int opc = 0;
 
-        while (opc != 3) {
-            System.out.println("        MENU        ");
-            System.out.println("1 - Cadastrar aluno");
-            System.out.println("2 - Listar alunos");
-            System.out.println("3 - Sair");
-            opc = sc.nextInt();
-        }
+        System.out.println("Insira a matrícula: ");
+        int matricula = sc.nextInt();
 
         try {
             conexao = DB.conectar();
             comando = conexao.createStatement();
 
+            Optional<Aluno> aluno = buscarAluno(matricula, comando);
 
-            adicionarAluno(conexao);
-            List<Aluno> alunos = listarAlunos(comando);
-
-            for (Aluno aluno : alunos) {
-                System.out.println(aluno.getNome());
+            if(aluno.isPresent()) {
+                System.out.println("Aluno encontrado");
+                System.out.println(aluno.get().getNome());
+                System.out.println(aluno.get().getMatricula());
+                System.out.println(aluno.get().getEmail());
+            } else {
+                System.out.println("Aluno nao encontrado");
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            DB.fecharComando(comando);
-            DB.desconectar();
         }
     }
 
@@ -129,5 +124,38 @@ public class Main {
         } catch (SQLException erro) {
             erro.printStackTrace();
         }
+    }
+
+    public static Optional<Aluno> buscarAluno(int matricula, Statement comando) {
+        Connection conexao = null;
+        ResultSet resultado = null;
+        Aluno aluno = null;
+
+
+        try {
+            resultado = comando.executeQuery(
+                    "SELECT matricula, " +
+                            "nome, " +
+                            "cpf, " +
+                            "email, " +
+                            "telefone " +
+                            "FROM universidade.alunos WHERE universidade.alunos.matricula = " + matricula
+            );
+
+            while(resultado.next()) {
+                aluno = new Aluno();
+                aluno.setMatricula(resultado.getInt("matricula"));
+                aluno.setNome(resultado.getString("nome"));
+                aluno.setCpf(resultado.getString("cpf"));
+                aluno.setEmail(resultado.getString("email"));
+                aluno.setTelefone(resultado.getString("telefone"));
+            }
+
+            return Optional.of(aluno);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
     }
 }
