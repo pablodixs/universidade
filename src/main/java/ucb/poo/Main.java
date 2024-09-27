@@ -2,6 +2,7 @@ package ucb.poo;
 
 import ucb.poo.database.DB;
 import ucb.poo.entities.Aluno;
+import ucb.poo.entities.Matricula;
 import ucb.poo.entities.Turma;
 
 import java.sql.*;
@@ -16,7 +17,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        deletarAluno(1);
+        cadastrarTurma();
     }
 
     public static List<Aluno> listarAlunos() {
@@ -56,40 +57,51 @@ public class Main {
         PreparedStatement statement;
         Scanner sc = new Scanner(System.in);
 
+        Aluno novoAluno = new Aluno();
+
+        System.out.println("######### INFORMAÇÕES PESSOAIS #########");
+
+        System.out.println("Insira o nome do aluno");
+        novoAluno.setNome(sc.nextLine());
+
+        System.out.println("Insira o CPF do aluno");
+        novoAluno.setCpf(sc.nextLine());
+
+        System.out.println("Insira o e-mail do aluno");
+        novoAluno.setEmail(sc.nextLine());
+
+        System.out.println("Insira o telefone do aluno");
+        novoAluno.setTelefone(sc.nextLine());
+
+        System.out.println("Insira a data de nascimento do aluno (dd/mm/aaaa");
+        String dataString = sc.nextLine();
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+        try {
+            java.util.Date utilDate = formatter.parse(dataString);
+
+            LocalDateTime localDateTime = utilDate.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+
+            novoAluno.setData_nascimento(localDateTime);
+        } catch (ParseException e) {
+            System.out.println("Formato de data inválido!");
+        }
+
+        System.out.println("######### INFORMAÇÕES ACADÊMICAS #########");
+
+        Matricula matricula = new Matricula();
+
+        System.out.print("Insira o código do curso: ");
+        matricula.setCodigo_curso(sc.nextInt());
+        matricula.setCpf_aluno(novoAluno.getCpf());
+        matricula.setCodigo_turma(1);
+
         try {
             conexao = DB.conectar();
             conexao.createStatement();
-
-            Aluno novoAluno = new Aluno();
-
-            System.out.println("Insira o nome do aluno");
-            novoAluno.setNome(sc.nextLine());
-
-            System.out.println("Insira o CPF do aluno");
-            novoAluno.setCpf(sc.nextLine());
-
-            System.out.println("Insira o e-mail do aluno");
-            novoAluno.setEmail(sc.nextLine());
-
-            System.out.println("Insira o telefone do aluno");
-            novoAluno.setTelefone(sc.nextLine());
-
-            System.out.println("Insira a data de nascimento do aluno (dd/mm/aaaa");
-            String dataString = sc.nextLine();
-
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-
-            try {
-                java.util.Date utilDate = formatter.parse(dataString);
-
-                LocalDateTime localDateTime = utilDate.toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDateTime();
-
-                novoAluno.setData_nascimento(localDateTime);
-            } catch (ParseException e) {
-                System.out.println("Formato de data inválido!");
-            }
 
             statement = conexao.prepareStatement(
                     "INSERT INTO universidade.alunos(cpf, nome, email, telefone, data_nascimento) VALUES (?, ?, ?, ?, ?)"
@@ -162,12 +174,11 @@ public class Main {
 
     public static void deletarAluno(int matricula) {
         Connection conexao;
-        Statement comando;
         PreparedStatement statement;
 
         try {
             conexao = DB.conectar();
-            comando = conexao.createStatement();
+            conexao.createStatement();
 
             statement = conexao.prepareStatement("DELETE FROM universidade.alunos WHERE alunos.matricula = ?");
 
@@ -202,14 +213,50 @@ public class Main {
 
             statement = conexao.prepareStatement(
                     "INSERT INTO universidade.turmas(sala, id_disciplina, id_curso) VALUES (?, ?, ?)"
-            )
+            );
 
+            statement.setInt(1, turma.getSala());
+            statement.setInt(2, turma.getId_disciplina());
+            statement.setInt(3, turma.getId_curso());
+
+            statement.executeUpdate();
         } catch (SQLException e) {
+            System.err.println("Erro ao cadastrar Turma");
             e.printStackTrace();
         }
     }
 
-    public static void adicionarDisciplina() {
+    public static void alterarFrequencia() {
+        Connection conexao;
+        Statement comando;
+        PreparedStatement statement;
+        Scanner sc = new Scanner(System.in);
 
+        try {
+            conexao = DB.conectar();
+            conexao.createStatement();
+
+            System.out.print("Insira a matrícula do aluno: ");
+            Optional<Aluno> aluno = buscarAluno(sc.nextInt());
+
+            if(aluno.isEmpty()) {
+                System.err.println("Aluno não encontrado!");
+            }
+
+            System.out.println("Alterando frequencia de: " + aluno.get().getNome());
+            System.out.print("Insira a frequência do aluno: ");
+            double frequencia = sc.nextDouble();
+
+            if(frequencia <= 0) {
+                System.err.println("Insira uma frequência acima de 0.");
+            }
+
+//            statement = conexao.prepareStatement(
+//                    "UPDATE universidade.disciplinas SET frequencia = ? WHERE "
+//            );
+
+        } catch (SQLException erro) {
+            erro.printStackTrace();
+        }
     }
 }
