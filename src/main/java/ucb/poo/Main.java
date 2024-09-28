@@ -2,8 +2,8 @@ package ucb.poo;
 
 import ucb.poo.database.DB;
 import ucb.poo.entities.Aluno;
+import ucb.poo.entities.Aula;
 import ucb.poo.entities.Matricula;
-import ucb.poo.entities.Turma;
 
 import java.sql.*;
 import java.text.ParseException;
@@ -17,7 +17,69 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        cadastrarTurma();
+        Scanner scanner = new Scanner(System.in);
+        int option = 0;
+
+        while (option != 8) {
+            System.out.println("############### UNIVERSIDADE ###############");
+            System.out.println("1. Cadastrar aluno");
+            System.out.println("2. Cadastrar aluno em turma");
+            System.out.println("3. Atualizar frequência");
+            System.out.println("4. Atualizar nota");
+            System.out.println("5. Deletar aluno");
+            System.out.println("6. Buscar aluno");
+            System.out.println("7. Listar todos os alunos");
+            System.out.println("8. Sair");
+            System.out.print("Escolha uma opção: ");
+
+            option = scanner.nextInt();
+
+            switch (option) {
+                case 1:
+                    System.out.println();
+                    System.out.println("############### ADICIONAR ALUNO ###############");
+                    adicionarAluno();
+                    break;
+                case 2:
+                    System.out.println();
+                    adicionarAlunoNaTurma();
+                    break;
+                case 3:
+                    System.out.println();
+                    System.out.println("############### ALTERAR FREQUÊNCIA ###############");
+                    alterarFrequencia();
+                    break;
+                case 4:
+                    System.out.println();
+                    System.out.println("############### ALTERAR NOTA ###############");
+                    alterarNota();
+                    break;
+                case 5:
+                    System.out.println();
+                    System.out.println("############### DELETAR ALUNO ###############");
+                    System.out.println("Insira o CPF do aluno");
+                    String cpf = scanner.next();
+                    deletarAluno(cpf);
+                    break;
+                case 6:
+                    System.out.println();
+                    System.out.println("############### BUSCAR ALUNO ###############");
+                    System.out.println("Insira o CPF do aluno");
+                    String cpfA = scanner.next();
+                    buscarAluno(cpfA);
+                    break;
+                case 7:
+                    System.out.println();
+                    System.out.println("############### TODOS OS ALUNOS ###############");
+                    listarAlunos();
+                    break;
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
+            }
+            System.out.println();
+        }
+
+        scanner.close();
     }
 
     public static List<Aluno> listarAlunos() {
@@ -35,12 +97,19 @@ public class Main {
 
             while (resultado.next()) {
                 Aluno aluno = new Aluno();
-                aluno.setMatricula(resultado.getInt("matricula"));
                 aluno.setCpf(resultado.getString("cpf"));
                 aluno.setNome(resultado.getString("nome"));
                 aluno.setEmail(resultado.getString("email"));
                 aluno.setTelefone(resultado.getString("telefone"));
                 alunos.add(aluno);
+            }
+
+            for (Aluno aluno : alunos) {
+                System.out.println("Nome: " + aluno.getNome());
+                System.out.println("CPF: " + aluno.getCpf());
+                System.out.println("E-mail: " + aluno.getEmail());
+                System.out.println("Telefone: " + aluno.getTelefone());
+                System.out.println();
             }
 
             return alunos;
@@ -55,6 +124,7 @@ public class Main {
         Connection conexao;
 
         PreparedStatement statement;
+        PreparedStatement statement_matricula;
         Scanner sc = new Scanner(System.in);
 
         Aluno novoAluno = new Aluno();
@@ -119,60 +189,90 @@ public class Main {
             }
 
             statement.executeUpdate();
+
+            statement_matricula = conexao.prepareStatement(
+                    "INSERT INTO universidade.matriculas(cpf_aluno, codigo_curso) VALUES (?, ?)"
+            );
+
+            statement_matricula.setString(1, novoAluno.getCpf());
+            statement_matricula.setInt(2, matricula.getCodigo_curso());
+
+            statement_matricula.executeUpdate();
+
+            System.out.println("Aluno adicionado com sucesso!");
         } catch (SQLException erro) {
             erro.printStackTrace();
         }
     }
 
-    public static Optional<Aluno> buscarAluno(int matricula) {
+    public static Optional<Aluno> buscarAluno(String cpf) {
         Connection conexao;
-        ResultSet resultado;
-        Statement comando;
+        ResultSet resultado, resultado2;
+        Statement comando, comando2;
         Aluno aluno = null;
+        Matricula matricula = null;
 
         try {
             conexao = DB.conectar();
             comando = conexao.createStatement();
+            comando2 = conexao.createStatement();
 
             resultado = comando.executeQuery(
-                    "SELECT matricula, " +
-                            "nome, " +
+                    "SELECT nome, " +
                             "cpf, " +
                             "email, " +
                             "telefone " +
-                            "FROM universidade.alunos WHERE universidade.alunos.matricula = " + matricula
+                            "FROM universidade.alunos WHERE universidade.alunos.cpf = " + cpf
             );
 
-            while(resultado.next()) {
+            resultado2 = comando2.executeQuery(
+                    "SELECT codigo, frequencia, nota, codigo_curso FROM universidade.matriculas"
+            );
+
+            while (resultado.next()) {
                 aluno = new Aluno();
-                aluno.setMatricula(resultado.getInt("matricula"));
                 aluno.setNome(resultado.getString("nome"));
                 aluno.setCpf(resultado.getString("cpf"));
                 aluno.setEmail(resultado.getString("email"));
                 aluno.setTelefone(resultado.getString("telefone"));
             }
 
-            if(aluno == null) {
+            while (resultado2.next()) {
+                matricula = new Matricula();
+                matricula.setCodigo(resultado2.getInt("codigo"));
+                matricula.setCodigo_curso(resultado2.getInt("codigo_curso"));
+                matricula.setNota(resultado2.getInt("nota"));
+                matricula.setFrequencia(resultado2.getInt("frequencia"));
+            }
+
+            if (aluno == null) {
                 System.out.println("Aluno não encontrado");
                 return Optional.empty();
             }
 
+            if (matricula == null) {
+                System.out.println("Matricula não encontrada");
+                return Optional.empty();
+            }
+
             System.out.println("Aluno encontrado");
-            System.out.println(aluno.getNome());
-            System.out.println(aluno.getMatricula());
-            System.out.println(aluno.getEmail());
+            System.out.println();
+            System.out.println("Matricula: " + matricula.getCodigo());
+            System.out.println("Nome: " + aluno.getNome());
+            System.out.println("E-mail: " + aluno.getEmail());
+            System.out.println("Telefone: " + aluno.getTelefone());
+            System.out.println("Nota: " + matricula.getNota());
+            System.out.println("Frequencia: " + matricula.getFrequencia());
+            System.out.println("Codigo curso: " + matricula.getCodigo_curso());
 
             return Optional.of(aluno);
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            DB.desconectar();
         }
-
         return Optional.empty();
     }
 
-    public static void deletarAluno(int matricula) {
+    public static void deletarAluno(String cpf) {
         Connection conexao;
         PreparedStatement statement;
 
@@ -180,48 +280,12 @@ public class Main {
             conexao = DB.conectar();
             conexao.createStatement();
 
-            statement = conexao.prepareStatement("DELETE FROM universidade.alunos WHERE alunos.matricula = ?");
+            statement = conexao.prepareStatement("DELETE FROM universidade.alunos WHERE alunos.cpf = ?");
 
-            statement.setInt(1, matricula);
-
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void cadastrarTurma() {
-        Connection conexao;
-
-        PreparedStatement statement;
-        Scanner sc = new Scanner(System.in);
-
-        try {
-            conexao = DB.conectar();
-            conexao.createStatement();
-
-            Turma turma = new Turma();
-
-            System.out.print("Insira o número da sala: ");
-            turma.setSala(sc.nextInt());
-
-            System.out.print("Insira o ID da Disciplina: ");
-            turma.setId_disciplina(sc.nextInt());
-
-            System.out.print("Insira o ID do Curso: ");
-            turma.setId_curso(sc.nextInt());
-
-            statement = conexao.prepareStatement(
-                    "INSERT INTO universidade.turmas(sala, id_disciplina, id_curso) VALUES (?, ?, ?)"
-            );
-
-            statement.setInt(1, turma.getSala());
-            statement.setInt(2, turma.getId_disciplina());
-            statement.setInt(3, turma.getId_curso());
+            statement.setString(1, cpf);
 
             statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Erro ao cadastrar Turma");
             e.printStackTrace();
         }
     }
@@ -237,26 +301,94 @@ public class Main {
             conexao.createStatement();
 
             System.out.print("Insira a matrícula do aluno: ");
-            Optional<Aluno> aluno = buscarAluno(sc.nextInt());
+            int matricula = sc.nextInt();
 
-            if(aluno.isEmpty()) {
-                System.err.println("Aluno não encontrado!");
-            }
-
-            System.out.println("Alterando frequencia de: " + aluno.get().getNome());
             System.out.print("Insira a frequência do aluno: ");
             double frequencia = sc.nextDouble();
 
-            if(frequencia <= 0) {
+            if (frequencia <= 0) {
                 System.err.println("Insira uma frequência acima de 0.");
             }
 
-//            statement = conexao.prepareStatement(
-//                    "UPDATE universidade.disciplinas SET frequencia = ? WHERE "
-//            );
+            statement = conexao.prepareStatement(
+                    "UPDATE universidade.matriculas SET frequencia = ? WHERE matriculas.codigo = ?"
+            );
 
+            statement.setDouble(1, frequencia);
+            statement.setInt(2, matricula);
+
+            statement.executeUpdate();
+            System.out.println("Frequência atualizada com sucesso!");
         } catch (SQLException erro) {
             erro.printStackTrace();
+        }
+    }
+
+    public static void alterarNota() {
+        Connection conexao;
+        Statement comando;
+        PreparedStatement statement;
+        Scanner sc = new Scanner(System.in);
+
+        try {
+            conexao = DB.conectar();
+            conexao.createStatement();
+
+            System.out.print("Insira a matrícula do aluno: ");
+            int matricula = sc.nextInt();
+
+            System.out.print("Insira a nota do aluno: ");
+            double nota = sc.nextDouble();
+
+            if (nota <= 0) {
+                System.err.println("Insira uma nota acima de 0.");
+            }
+
+            statement = conexao.prepareStatement(
+                    "UPDATE universidade.matriculas SET nota = ? WHERE matriculas.codigo = ?"
+            );
+
+            statement.setDouble(1, nota);
+            statement.setInt(2, matricula);
+
+            statement.executeUpdate();
+            System.out.println("Nota atualizada com sucesso!");
+        } catch (SQLException erro) {
+            erro.printStackTrace();
+        }
+    }
+
+    public static void adicionarAlunoNaTurma() {
+        Connection conexao;
+        Statement comando;
+        PreparedStatement statement;
+        Scanner sc = new Scanner(System.in);
+
+        Aula aula = new Aula();
+
+        System.out.println("######## ADICIONAR ALUNO EM TURMA ########");
+        System.out.print("Insira a matrícula do aluno: ");
+        aula.setMatricula_aluno(sc.nextInt());
+        System.out.print("Insira o código da turma do aluno: ");
+        aula.setCodigo_turma(sc.nextInt());
+
+        try {
+            conexao = DB.conectar();
+            conexao.createStatement();
+
+            statement = conexao.prepareStatement(
+                    "INSERT INTO universidade.aulas(matricula_aluno, codigo_turma) VALUES (?, ?)"
+            );
+
+            statement.setInt(1, aula.getMatricula_aluno());
+            statement.setInt(2, aula.getCodigo_turma());
+
+            statement.executeUpdate();
+
+            System.out.println("Aluno adicionado a turma " + aula.getCodigo_turma() + " com sucesso!");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

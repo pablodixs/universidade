@@ -3,7 +3,6 @@ package ucb.poo.entities;
 import java.time.LocalDateTime;
 
 public class Aluno {
-    private int matricula;
     private String cpf;
     private String nome;
     private String email;
@@ -12,21 +11,12 @@ public class Aluno {
 
     public Aluno() {}
 
-    public Aluno(int matricula, String cpf, String nome, String email, String telefone, LocalDateTime data_nascimento) {
-        this.matricula = matricula;
+    public Aluno(String cpf, String nome, String email, String telefone, LocalDateTime data_nascimento) {
         this.cpf = cpf;
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
         this.data_nascimento = data_nascimento;
-    }
-
-    public int getMatricula() {
-        return matricula;
-    }
-
-    public void setMatricula(int matricula) {
-        this.matricula = matricula;
     }
 
     public String getCpf() {
