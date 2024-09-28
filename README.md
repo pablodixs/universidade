@@ -10,8 +10,8 @@ O objetivo deste trabalho é desenvolver um sistema completo que integre a lingu
 - Pablo Dias (@pablodixs)
 
 ### Artefatos
-[Modelo Conceitual do Banco de Dados](http://drive.google.com)/
-[Diagrama Entidade-Relacionamento](http://drive.google.com)
+- [Modelo Conceitual do Banco de Dados](https://drive.google.com/file/d/1t2TB5pO8eDjh_jhIPl7poxU995PbHJ-y/view?usp=sharing)/
+- [Diagrama Entidade-Relacionamento](https://drive.google.com/file/d/1QYLy77q8xe8iemraEVdPJ98AK_p5UT2m/view?usp=sharing)
 
 ## Modelagem de Banco de Dados
 - [x] **Modelo Conceitual:** Desenvolver o diagrama entidade-relacionamento (ER) que represente as principais entidades e seus relacionamentos.
