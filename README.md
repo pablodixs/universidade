@@ -1,4 +1,4 @@
-# Banco de Dados da Universidade
+# Banco de Dados de Universidade
 O objetivo deste trabalho é desenvolver um sistema completo que integre a linguagem de programação Java com o banco de dados MySQL. O projeto deverá contemplar a construção dos modelos conceitual, lógico e físico do banco de dados, bem como a implementação de uma aplicação Java que interaja diretamente com o banco para realizar operações de inserção, consulta, atualização e exclusão de dados (CRUD).
 
 > [!IMPORTANT]
@@ -10,7 +10,7 @@ O objetivo deste trabalho é desenvolver um sistema completo que integre a lingu
 - Pablo Dias (@pablodixs)
 
 ### Artefatos
-- [Modelo Conceitual do Banco de Dados](https://drive.google.com/file/d/1t2TB5pO8eDjh_jhIPl7poxU995PbHJ-y/view?usp=sharing)/
+- [Modelo Conceitual do Banco de Dados](https://drive.google.com/file/d/1t2TB5pO8eDjh_jhIPl7poxU995PbHJ-y/view?usp=sharing)
 - [Diagrama Entidade-Relacionamento](https://drive.google.com/file/d/1QYLy77q8xe8iemraEVdPJ98AK_p5UT2m/view?usp=sharing)
 
 ## Modelagem de Banco de Dados
